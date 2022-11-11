@@ -1,6 +1,6 @@
 import unittest
 
-from 五十音互动.gojyuon_danmaku_game.QA import *
+from gojyuon_danmaku_game.QA import *
 
 
 class MyTestCase(unittest.TestCase):

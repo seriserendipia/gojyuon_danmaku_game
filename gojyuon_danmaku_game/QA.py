@@ -1,6 +1,6 @@
 import traceback
 
-from 五十音互动.gojyuon_danmaku_game.initdata import get_roumaji, hiragana, katakana, \
+from gojyuon_danmaku_game.initdata import get_roumaji, hiragana, katakana, \
     roumaji
 
 # %%
