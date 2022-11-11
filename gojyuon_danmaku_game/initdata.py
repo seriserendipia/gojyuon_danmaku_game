@@ -124,10 +124,14 @@ shuffle(hiragana)
 
 
 # %%
-def get_roumaji(kana):
-    kana = kana.lower()
-    for kanaset in kanasets:
-        if kana in kanaset:
-            kana_index = np.argwhere(kanaset == kana)
-            return roumaji[kana_index[0, 0], kana_index[0, 1]]
-    raise Exception(f"\"{kana}\"不是清音的平假名、片假名或罗马音")
+def parseChar_key_from_to(keychar,from_charset,to_charset):
+    key_index = np.argwhere(from_charset == keychar)
+    return to_charset[key_index[0, 0], key_index[0, 1]]
+
+# %%
+def get_hiragana(q_roumaji):
+    parseChar_key_from_to(q_roumaji,roumaji,hiragana)
+
+
+def get_katakana(q_roumaji):
+    parseChar_key_from_to(q_roumaji,roumaji,katakana)
