@@ -17,6 +17,11 @@ class QA:
 
     def wash_raw_answer(self,raw_answer:str):
         raw_answer = raw_answer.strip()
+        raw_answer = raw_answer.lower()
+        if len(raw_answer) >= 3:
+            raw_answer = raw_answer[:3]
+        return raw_answer
+
 
 
 
