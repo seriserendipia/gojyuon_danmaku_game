@@ -1,5 +1,7 @@
 from unittest import TestCase
 
+from gojyuon_danmaku_game import main_game
+
 
 class TestMainWindow(TestCase):
     def test_init_ui(self):
@@ -36,7 +38,7 @@ class TestMainWindow(TestCase):
         self.fail()
 
     def test_play_music(self):
-        self.fail()
+        main_game.MainWindow().play_music()
 
     def test_pause_music(self):
         self.fail()

@@ -51,6 +51,7 @@ class QAJudger(QThread):
         super(QAJudger,self).__init__()
         self.question = question
         self.team_info = team_info
+        self.CAN_SCORE = True
 
     def is_answer_right(self):
         try:
@@ -124,28 +125,28 @@ class QAJudger(QThread):
     
     
     def answer_process(self,answerobj:QA_answer):
-        try:
-            self.answerobj = answerobj
-            self.answer = answerobj.answer
-            self.ANSWERTYPE = self.get_answer_type()
+        if self.CAN_SCORE == True:
+            try:
+                self.answerobj = answerobj
+                self.answer = answerobj.answer
+                self.ANSWERTYPE = self.get_answer_type()
 
-            if self.is_answer_right():
-                score = self.gen_score()
-                message = self.gen_scoring_message()
+                if self.is_answer_right():
+                    score = self.gen_score()
+                    message = self.gen_scoring_message()
 
 
-                self.add_score(score)
-                self.question.hasFirstRightAnswer = True
-        except Exception as e:
-            message = f"不能识别的答案:{str(e)}"
-            print(message)
+                    self.add_score(score)
+                    self.question.hasFirstRightAnswer = True
+            except Exception as e:
+                message = f"不能识别的答案:{str(e)}"
 
-        finally:
-            self.show_message(message)
+
+            finally:
+                self.show_message(message)
 
     def add_score(self, score):
         nickname = self.answerobj.nickname
-        question = self.question
         team_flag = self.team_info.get_team_flag(nickname)
         self.team_info.add_score(score,team_flag)
 
