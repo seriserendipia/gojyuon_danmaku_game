@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import logging
-from typing import *
+from typing import Dict, Optional, Callable, Awaitable
 
-from . import client as client_
-from . import models
+from blivedm_dev.blivedm import bdm_client as client_
+from blivedm_dev.blivedm import bdm_models
+from blivedm_dev.blivedm.bdm_handler_interface import HandlerInterface
 
 __all__ = (
-    'HandlerInterface',
     'BaseHandler',
 )
 
@@ -43,37 +43,28 @@ IGNORED_CMDS = (
 logged_unknown_cmds = set()
 
 
-class HandlerInterface:
-    """
-    直播消息处理器接口
-    """
-
-    async def handle(self, client: client_.BLiveClient, command: dict):
-        raise NotImplementedError
-
-
 class BaseHandler(HandlerInterface):
     """
     一个简单的消息处理器实现，带消息分发和消息类型转换。继承并重写_on_xxx方法即可实现自己的处理器
     """
 
     def __heartbeat_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_heartbeat(client, models.HeartbeatMessage.from_command(command['data']))
+        return self._on_heartbeat(client, bdm_models.HeartbeatMessage.from_command(command['data']))
 
     def __danmu_msg_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_danmaku(client, models.DanmakuMessage.from_command(command['info']))
+        return self._on_danmaku(client, bdm_models.DanmakuMessage.from_command(command['info']))
 
     def __send_gift_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_gift(client, models.GiftMessage.from_command(command['data']))
+        return self._on_gift(client, bdm_models.GiftMessage.from_command(command['data']))
 
     def __guard_buy_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_buy_guard(client, models.GuardBuyMessage.from_command(command['data']))
+        return self._on_buy_guard(client, bdm_models.GuardBuyMessage.from_command(command['data']))
 
     def __super_chat_message_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_super_chat(client, models.SuperChatMessage.from_command(command['data']))
+        return self._on_super_chat(client, bdm_models.SuperChatMessage.from_command(command['data']))
 
     def __super_chat_message_delete_callback(self, client: client_.BLiveClient, command: dict):
-        return self._on_super_chat_delete(client, models.SuperChatDeleteMessage.from_command(command['data']))
+        return self._on_super_chat_delete(client, bdm_models.SuperChatDeleteMessage.from_command(command['data']))
 
     # cmd -> 处理回调
     _CMD_CALLBACK_DICT: Dict[
@@ -119,32 +110,32 @@ class BaseHandler(HandlerInterface):
         if callback is not None:
             await callback(self, client, command)
 
-    async def _on_heartbeat(self, client: client_.BLiveClient, message: models.HeartbeatMessage):
+    async def _on_heartbeat(self, client: client_.BLiveClient, message: bdm_models.HeartbeatMessage):
         """
         收到心跳包（人气值）
         """
 
-    async def _on_danmaku(self, client: client_.BLiveClient, message: models.DanmakuMessage):
+    async def _on_danmaku(self, client: client_.BLiveClient, message: bdm_models.DanmakuMessage):
         """
         收到弹幕
         """
 
-    async def _on_gift(self, client: client_.BLiveClient, message: models.GiftMessage):
+    async def _on_gift(self, client: client_.BLiveClient, message: bdm_models.GiftMessage):
         """
         收到礼物
         """
 
-    async def _on_buy_guard(self, client: client_.BLiveClient, message: models.GuardBuyMessage):
+    async def _on_buy_guard(self, client: client_.BLiveClient, message: bdm_models.GuardBuyMessage):
         """
         有人上舰
         """
 
-    async def _on_super_chat(self, client: client_.BLiveClient, message: models.SuperChatMessage):
+    async def _on_super_chat(self, client: client_.BLiveClient, message: bdm_models.SuperChatMessage):
         """
         醒目留言
         """
 
-    async def _on_super_chat_delete(self, client: client_.BLiveClient, message: models.SuperChatDeleteMessage):
+    async def _on_super_chat_delete(self, client: client_.BLiveClient, message: bdm_models.SuperChatDeleteMessage):
         """
         删除醒目留言
         """

@@ -1,28 +1,13 @@
 import numpy as np
 import pandas as pd
 
-
+#%%
+TEST_ROOM_IDS = [
+    21696950
+]
 
 # %%
 blank_label_fill_str = """
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
         """
 
 # %%
@@ -130,8 +115,25 @@ def parseChar_key_from_to(keychar,from_charset,to_charset):
 
 # %%
 def get_hiragana(q_roumaji):
-    parseChar_key_from_to(q_roumaji,roumaji,hiragana)
+    return parseChar_key_from_to(q_roumaji,roumaji,hiragana)
 
 
 def get_katakana(q_roumaji):
-    parseChar_key_from_to(q_roumaji,roumaji,katakana)
+    return parseChar_key_from_to(q_roumaji,roumaji,katakana)
+
+
+def get_roumaji_from_hirakana(kana):
+    return parseChar_key_from_to(kana,hiragana,roumaji)
+
+
+def get_roumaji_from_katakana(kana):
+    return parseChar_key_from_to(kana,katakana,roumaji)
+
+
+def get_roumaji(kana):
+    if kana in hiragana:
+        return get_roumaji_from_hirakana(kana)
+    elif kana in katakana:
+        return get_roumaji_from_katakana(kana)
+    else:
+        return kana

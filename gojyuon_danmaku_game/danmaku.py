@@ -5,16 +5,14 @@ import random
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
-import 五十音互动.blivedm_dev.blivedm as blivedm
 
 # 直播间ID的取值看直播间URL
-TEST_ROOM_IDS = [
-    697
-]
+from blivedm_dev import blivedm
+from gojyuon_danmaku_game.initdata import TEST_ROOM_IDS
 
 
 class DANMAKU(QThread):
-    testSignal = QtCore.pyqtSignal(str)
+    testSignal = QtCore.pyqtSignal(str,str)
 
     def run(self):
         new_loop = asyncio.new_event_loop()
@@ -62,9 +60,7 @@ class MyHandler(blivedm.BaseHandler):
         print(f'[{client.room_id}] 当前人气值：{message.popularity}')
 
     async def _on_danmaku(self, client: blivedm.BLiveClient, message: blivedm.DanmakuMessage):
-        message = f'>> {message.uname}：{message.msg}'
-        print(message)
-        self.notice.emit(message)
+        self.notice.emit(message.msg,message.uname)
 
     async def _on_gift(self, client: blivedm.BLiveClient, message: blivedm.GiftMessage):
         print(f'[{client.room_id}] {message.uname} 赠送{message.gift_name}x{message.num}'

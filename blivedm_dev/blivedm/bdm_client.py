@@ -6,16 +6,17 @@ import json
 import logging
 import ssl as ssl_
 import struct
-from typing import *
+from typing import Optional, Union, List
 
 import aiohttp
 import brotli
 
-from . import handlers
 
 __all__ = (
     'BLiveClient',
 )
+
+import blivedm_dev.blivedm.bdm_handler_interface
 
 logger = logging.getLogger('blivedm')
 
@@ -121,7 +122,7 @@ class BLiveClient:
         self._ssl = ssl if ssl else ssl_._create_unverified_context()  # noqa
 
         # 消息处理器，可动态增删
-        self._handlers: List[handlers.HandlerInterface] = []
+        self._handlers: List[blivedm_dev.blivedm.bdm_handler_interface.HandlerInterface] = []
 
         # 在调用init_room后初始化的字段
         # 真实房间ID
@@ -172,7 +173,7 @@ class BLiveClient:
         """
         return self._room_owner_uid
 
-    def add_handler(self, handler: 'handlers.HandlerInterface'):
+    def add_handler(self, handler: 'import blivedm_dev.blivedm.bdm_handler_interface'):
         """
         添加消息处理器
         注意多个处理器是并发处理的，不要依赖处理的顺序
