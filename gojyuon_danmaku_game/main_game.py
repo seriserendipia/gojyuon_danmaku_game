@@ -35,18 +35,10 @@ class MainWindow(QWidget):
         self.chatlabel = QLabel(blank_label_fill_str)
         self.chatlabel_scroll_area = QScrollArea()
         self.chatlabel.setWordWrap(True)
-        self.chatlabel_groupbox = QGroupBox("实时弹幕")
-        self.chat_layout = QHBoxLayout()
-        self.chat_layout.addWidget(self.chatlabel_scroll_area)
-        self.chatlabel_groupbox.setLayout(self.chat_layout)
 
         self.scoring_label = QLabel(blank_label_fill_str)
         self.scoring_label_scroll_area = QScrollArea()
         self.scoring_label.setWordWrap(True)
-        self.scoring_label_groupbox = QGroupBox("游戏记录")
-        self.scoring_layout = QHBoxLayout()
-        self.scoring_layout.addWidget(self.scoring_label_scroll_area)
-        self.chatlabel_groupbox.setLayout(self.scoring_layout)
 
         self.rule_pic_label = QLabel()
 
@@ -107,8 +99,8 @@ class MainWindow(QWidget):
         grid_layout.addWidget(self.rule_pic_label,0,1,1,2, alignment=Qt.AlignCenter)
         grid_layout.addWidget(self.shuffleButton, 1, 1, 1, 1)
         grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
-        grid_layout.addWidget(self.scoring_label_groupbox,2,1,1,1)
-        grid_layout.addWidget(self.chatlabel_groupbox, 2, 2, 1, 1)
+        grid_layout.addWidget(self.scoring_label_scroll_area,2,1,1,1)
+        grid_layout.addWidget(self.chatlabel_scroll_area, 2, 2, 1, 1)
         grid_layout.addWidget(self.red_team_member_listview,1,0,3,1)
         grid_layout.addWidget(self.blue_team_member_listview,1,3,3,1)
 
