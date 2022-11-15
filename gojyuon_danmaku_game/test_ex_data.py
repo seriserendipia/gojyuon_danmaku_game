@@ -74,7 +74,7 @@ if __name__ == '__main__':
         'font_size': '60px',
     }
 
-    apply_stylesheet(app, theme=r'D:\PythonEx\gojyuon_danmaku_game\drawable\light_white.xml',extra=extra)
+    apply_stylesheet(app, theme=r'D:\PythonEx\gojyuon_danmaku_game\drawable\light_white.xml',save_as="",extra=extra)
     w.resize(1000, 800)
     w.move(200, 200)
     w.setWindowTitle('五十音弹幕游戏')
