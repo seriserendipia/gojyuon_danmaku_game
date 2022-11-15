@@ -58,16 +58,12 @@ if __name__ == '__main__':
 
     w = MainWindow(hiragana[:1])
 
+    # 实例化弹幕获取线程
+    input_thread = TestMainWindow()
+    # # 绑定更新弹幕函数
+    input_thread.testSignal.connect(w.update_chat)
+    input_thread.start()
 
-    def connect_damakusource(type_class, main_window_object):
-        # 实例化弹幕获取线程
-        input_thread = type_class()
-        # # 绑定更新弹幕函数
-        input_thread.testSignal.connect(w.update_chat)
-        input_thread.start()
-
-
-    connect_damakusource(TestMainWindow, w)
 
     extra = {
 
