@@ -36,13 +36,17 @@ class MainWindow(QWidget):
         self.chatlabel_scroll_area = QScrollArea()
         self.chatlabel.setWordWrap(True)
         self.chatlabel_groupbox = QGroupBox("实时弹幕")
-        self.chatlabel_groupbox.setLayout(QHBoxLayout().addWidget(self.chatlabel))
+        self.chat_layout = QHBoxLayout()
+        self.chat_layout.addWidget(self.chatlabel_scroll_area)
+        self.chatlabel_groupbox.setLayout(self.chat_layout)
 
         self.scoring_label = QLabel(blank_label_fill_str)
         self.scoring_label_scroll_area = QScrollArea()
         self.scoring_label.setWordWrap(True)
         self.scoring_label_groupbox = QGroupBox("游戏记录")
-        self.scoring_label_groupbox.setLayout(QHBoxLayout().addWidget(self.scoring_label))
+        self.scoring_layout = QHBoxLayout()
+        self.scoring_layout.addWidget(self.scoring_label_scroll_area)
+        self.chatlabel_groupbox.setLayout(self.scoring_layout)
 
         self.rule_pic_label = QLabel()
 
