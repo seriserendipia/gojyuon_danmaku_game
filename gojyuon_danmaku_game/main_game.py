@@ -1,11 +1,11 @@
 import sys
 
 from PyQt5.QtCore import QUrl, QSize, Qt
-from PyQt5.QtGui import QFont, QIcon, QPixmap
+from PyQt5.QtGui import QFont, QIcon, QPixmap, QTransform
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QGridLayout, \
-    QScrollArea, QListWidget, QListWidgetItem, QSizePolicy
+    QScrollArea, QListWidget, QListWidgetItem, QSizePolicy, QGroupBox, QHBoxLayout
 from qt_material import apply_stylesheet
 
 from gojyuon_danmaku_game.QA_control import QAJudger, QA_question, QA_answer
@@ -35,9 +35,15 @@ class MainWindow(QWidget):
         self.chatlabel = QLabel(blank_label_fill_str)
         self.chatlabel_scroll_area = QScrollArea()
         self.chatlabel.setWordWrap(True)
+        self.chatlabel_groupbox = QGroupBox("实时弹幕")
+        self.chatlabel_groupbox.setLayout(QHBoxLayout().addWidget(self.chatlabel))
+
         self.scoring_label = QLabel(blank_label_fill_str)
         self.scoring_label_scroll_area = QScrollArea()
         self.scoring_label.setWordWrap(True)
+        self.scoring_label_groupbox = QGroupBox("游戏记录")
+        self.scoring_label_groupbox.setLayout(QHBoxLayout().addWidget(self.scoring_label))
+
         self.rule_pic_label = QLabel()
 
         self.red_team_member_listview = QTeamListWidget("红")
@@ -97,8 +103,8 @@ class MainWindow(QWidget):
         grid_layout.addWidget(self.rule_pic_label,0,1,1,2, alignment=Qt.AlignCenter)
         grid_layout.addWidget(self.shuffleButton, 1, 1, 1, 1)
         grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
-        grid_layout.addWidget(self.scoring_label_scroll_area,2,1,1,1)
-        grid_layout.addWidget(self.chatlabel_scroll_area, 2, 2, 1, 1)
+        grid_layout.addWidget(self.scoring_label_groupbox,2,1,1,1)
+        grid_layout.addWidget(self.chatlabel_groupbox, 2, 2, 1, 1)
         grid_layout.addWidget(self.red_team_member_listview,1,0,3,1)
         grid_layout.addWidget(self.blue_team_member_listview,1,3,3,1)
 
@@ -115,18 +121,18 @@ class MainWindow(QWidget):
         rule_pic = QPixmap(r"D:\PythonEx\gojyuon_danmaku_game\drawable\游戏规则（不带倒计时版）.png")
         self.rule_pic_label.setPixmap(rule_pic)
 
-        shuffle_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\随机数生成-选中.png")
-        self.shuffleButton.setIcon(shuffle_icon)
+        self.shuffle_pix = QPixmap(r"D:\PythonEx\gojyuon_danmaku_game\drawable\随机数生成-选中.png")
+        self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
         self.shuffleButton.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        # print(shuffle_icon.availableSizes())
-        # self.shuffleButton.setIconSize(shuffle_icon.availableSizes()[0])
+        self.shuffleButton.setIconSize(QSize(128, 128))
 
         self.play_control.setIcon(self.play_icon)
         self.play_control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.play_control.setIconSize(QSize(128, 128))
 
         self.setLayout(grid_layout)
 
-        self.play_control.setIconSize(QSize(128,128))
+
 
 
 
@@ -136,6 +142,11 @@ class MainWindow(QWidget):
 
 
     def on_shuffle_click(self):
+        transform = QTransform()  ##需要用到pyqt5中QTransform函数
+        transform.rotate(90)  ##设置旋转角度——顺时针旋转90°
+        self.shuffle_pix = self.shuffle_pix.transformed(transform)  ##对image进行旋转
+        self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
+        self.shuffleButton.setIconSize(QSize(128, 128))
         print("换题啦！！！！！！！！！")
         random_kana = shuffle(self.kana_range)
         random_roumaji_char = get_roumaji(random_kana)
@@ -180,7 +191,7 @@ class MainWindow(QWidget):
 
     def init_play_content(self):
         audio_dir = self.audio_dir
-        print(audio_dir)
+        print("音频路径：",audio_dir)
         self.playlist.clear()
 
         self.media_content = QMediaContent(QUrl.fromLocalFile(audio_dir))
@@ -209,7 +220,7 @@ class MainWindow(QWidget):
         self.play_control.setIcon(self.pause_icon)
         # 设置提示信息为暂停
         self.play_control.setText('暂停中')
-        print(self.play_control.text())
+        print("游戏状态为：",self.play_control.text())
         self.play_control.repaint()
 
     # TODO 计时器暂停
@@ -261,7 +272,7 @@ if __name__ == '__main__':
     input_thread.start()
 
     # setup stylesheet
-    apply_stylesheet(app, theme='light_cyan.xml')
+    apply_stylesheet(app, theme='light_amber.xml')
     w.resize(1000, 800)
     w.move(200, 200)
     w.setWindowTitle('五十音答题')

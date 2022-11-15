@@ -37,15 +37,12 @@ class TestMainWindow(QThread):
         for i in range(100):
             message1 = random.choice(string.ascii_letters + string.digits + string.punctuation)
             message2 = np.random.choice(kana_range)
-            print(message2)
-            print(type(message2))
             messagelist = []
             messagelist.append(message1)
             messagelist.append(message2)
             message = np.random.choice(messagelist)
             name = np.random.choice(name_list)
             self.ex_data.append((name,message))
-        print(len(self.ex_data))
 
     def run(self):
         for i in self.ex_data:
@@ -70,17 +67,17 @@ if __name__ == '__main__':
         # Button colors
         'danger': '#dc3545',
         'warning': '#ffc107',
-        'success': '#17a2b8',
+        'success': '#3e88c5',
 
         # Font
         'font_family': 'Microsoft YaHei',
         'font_size': '60px',
     }
 
-    apply_stylesheet(app, theme='light_amber.xml',extra=extra)
+    apply_stylesheet(app, theme=r'D:\PythonEx\gojyuon_danmaku_game\drawable\light_white.xml',extra=extra)
     w.resize(1000, 800)
     w.move(200, 200)
-    w.setWindowTitle('五十音答题')
+    w.setWindowTitle('五十音弹幕游戏')
     w.show()
 
     sys.exit(app.exec_())

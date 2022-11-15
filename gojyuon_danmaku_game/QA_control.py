@@ -63,7 +63,7 @@ class QAJudger(QThread):
                 pass
         except Exception as e:
             message = f"{str(e)}"
-            print(traceback.print_exc())
+            print("err:",traceback.print_exc())
         finally:
             self.show_message(message)
 

@@ -1,0 +1,21 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<resources>
+  <color name="primaryColor">#ffffff</color>
+<!--  按钮边框&选中色-->
+
+  <color name="primaryLightColor">#07689F</color>
+  <!--  暂时什么都不是-->
+
+  <color name="secondaryColor">#ffffff</color>
+<!--  名单列表背景色-->
+
+  <color name="secondaryLightColor">#000000</color>
+<!--  暂时什么都不是-->
+
+  <color name="secondaryDarkColor">#ffffff</color>
+<!--  背景色-->
+
+  <color name="primaryTextColor">#515151</color>
+
+  <color name="secondaryTextColor">#515151</color>
+</resources>
