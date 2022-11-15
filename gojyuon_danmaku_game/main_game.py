@@ -1,60 +1,77 @@
 import sys
 
-from PyQt5.QtCore import QUrl
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtGui import QFont
+from PyQt5.QtCore import QUrl, QSize, Qt
+from PyQt5.QtGui import QFont, QIcon, QPixmap
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QGridLayout, \
-    QScrollArea
+    QScrollArea, QListWidget, QListWidgetItem, QSizePolicy
+from qt_material import apply_stylesheet
 
-from gojyuon_danmaku_game.danmaku import DANMAKU
 from gojyuon_danmaku_game.QA_control import QAJudger, QA_question, QA_answer
-from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji, blank_label_fill_str, roumaji
+from gojyuon_danmaku_game.danmaku import DANMAKU
+from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji, blank_label_fill_str
 from gojyuon_danmaku_game.team_factory import TeamInfo
 
 
+class QTeamListWidget(QListWidget):
+    def __init__(self,team_flag):
+        super(QTeamListWidget, self).__init__()
+        self.team_flag = team_flag
+
 class MainWindow(QWidget):
 
-    def __init__(self):
+    def __init__(self,kana_range):
         super().__init__()
+        #指定随机范围
+        self.kana_range = kana_range
 
         # 界面组件Widget初始化
-        self.shuffleButton = QPushButton("抽")
-        self.shuffleButton.setFont(QFont("Microsoft YaHei", 100))
+        self.shuffleButton = QPushButton()
+
         self.play_control = QPushButton("开始")
+        self.play_control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.chatlabel = QLabel(blank_label_fill_str)
         self.chatlabel_scroll_area = QScrollArea()
+        self.chatlabel.setWordWrap(True)
         self.scoring_label = QLabel(blank_label_fill_str)
         self.scoring_label_scroll_area = QScrollArea()
+        self.scoring_label.setWordWrap(True)
+        self.rule_pic_label = QLabel()
 
-        self.red_team_score_label = QLabel("红队得分：0")
-        self.blue_team_score_label = QLabel("蓝队得分：0")
+        self.red_team_member_listview = QTeamListWidget("红")
+        self.blue_team_member_listview = QTeamListWidget("蓝")
+
+        self.red_team_score_label = QLabel("红队\n得分：0")
+        self.red_team_score_label.setFont(QFont("Microsoft YaHei", 30))
+        self.red_team_score_label.setProperty('class', 'danger')
+        self.blue_team_score_label = QLabel("蓝队\n得分：0")
+        self.blue_team_score_label.setFont(QFont("Microsoft YaHei", 30))
+        self.blue_team_score_label.setProperty('class', 'success')
 
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
 
-        self.initUI()
+        self.play_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\播放.png")
+        self.pause_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\暂停.png")
 
-        self.DANMAKU = DANMAKU()  # 实例化弹幕获取线程
-        # 绑定更新弹幕函数
-        self.DANMAKU.testSignal.connect(self.update_chat)
-        self.DANMAKU.start()
+        self.initUI()
 
 
 
     def initUI(self):
         self.team_info = TeamInfo()
         self.team_info.new_player_message_Signal.connect(self.update_scoring)
+        self.team_info.refresh_team_list_Signal.connect(self.update_team_list)
 
         self.shuffleButton.clicked.connect(self.on_shuffle_click)
         self.play_control.clicked.connect(self.on_play_control_click)
 
         # 初始化第一题，自定义资源位置！
         self.init_new_question("a")
-        self.qa_judger.scoring_message_Signal.connect(self.update_scoring)
+
 
         self.player.setVolume(100)
 
@@ -75,18 +92,42 @@ class MainWindow(QWidget):
         )
 
         grid_layout = QGridLayout()
-        grid_layout.addWidget(self.shuffleButton, 0, 1, 1, 1)
-        grid_layout.addWidget(self.play_control, 0, 2, 1, 1)
-        grid_layout.addWidget(self.scoring_label_scroll_area,1,0,1,2)
-        grid_layout.addWidget(self.chatlabel_scroll_area, 1, 2, 1, 2)
         grid_layout.addWidget(self.red_team_score_label,0,0,1,1)
         grid_layout.addWidget(self.blue_team_score_label,0,3,1,1)
+        grid_layout.addWidget(self.rule_pic_label,0,1,1,2, alignment=Qt.AlignCenter)
+        grid_layout.addWidget(self.shuffleButton, 1, 1, 1, 1)
+        grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
+        grid_layout.addWidget(self.scoring_label_scroll_area,2,1,1,1)
+        grid_layout.addWidget(self.chatlabel_scroll_area, 2, 2, 1, 1)
+        grid_layout.addWidget(self.red_team_member_listview,1,0,3,1)
+        grid_layout.addWidget(self.blue_team_member_listview,1,3,3,1)
 
         # 设定第几行，占面积的比例
-        grid_layout.setRowStretch(0, 1)
-        grid_layout.setRowStretch(1, 3)
+        grid_layout.setRowStretch(0, 2)
+        grid_layout.setRowStretch(1, 1)
+        grid_layout.setRowStretch(2, 2)
+
+        grid_layout.setColumnStretch(0, 1)
+        grid_layout.setColumnStretch(1, 2)
+        grid_layout.setColumnStretch(2, 2)
+        grid_layout.setColumnStretch(3, 1)
+
+        rule_pic = QPixmap(r"D:\PythonEx\gojyuon_danmaku_game\drawable\游戏规则（不带倒计时版）.png")
+        self.rule_pic_label.setPixmap(rule_pic)
+
+        shuffle_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\随机数生成-选中.png")
+        self.shuffleButton.setIcon(shuffle_icon)
+        self.shuffleButton.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        # print(shuffle_icon.availableSizes())
+        # self.shuffleButton.setIconSize(shuffle_icon.availableSizes()[0])
+
+        self.play_control.setIcon(self.play_icon)
+        self.play_control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         self.setLayout(grid_layout)
+
+        self.play_control.setIconSize(QSize(128,128))
+
 
 
     def init_qa_judger(self):
@@ -95,21 +136,26 @@ class MainWindow(QWidget):
 
 
     def on_shuffle_click(self):
-        random_roumaji_char = shuffle(roumaji)
+        print("换题啦！！！！！！！！！")
+        random_kana = shuffle(self.kana_range)
+        random_roumaji_char = get_roumaji(random_kana)
         self.init_new_question(random_roumaji_char)
+        self.update_scoring("---------题目刷新---------------")
 
     def init_new_question(self, random_roumaji_char):
-        self.change_audio(random_roumaji_char)
         self.q_roumaji = random_roumaji_char
+        self.change_audio()
         self.qa_judger = self.init_qa_judger()
+        self.qa_judger.scoring_message_Signal.connect(self.update_scoring)
 
-    def change_audio(self, roumaji_char):
+    def change_audio(self):
         self.player.stop()
-        self.audio_dir = self.get_audio_dir(roumaji_char)
+        self.audio_dir = self.get_audio_dir()
         self.music_play_control()
 
-    def get_audio_dir(self, roumaji_char):
-        audio_dir = rf"D:\PythonEx\gojyuon_danmaku_game\音声素材\kana50on_{roumaji_char}.mp3"
+    def get_audio_dir(self):
+        roumaji = self.q_roumaji
+        audio_dir = rf"D:\PythonEx\gojyuon_danmaku_game\音声素材\kana50on_{roumaji}.mp3"
         return audio_dir
 
 
@@ -128,11 +174,13 @@ class MainWindow(QWidget):
             self.pause_music()
         # 初始化音频内容
         else:
+            print("初始化音频！！！！！！！！！")
             self.init_play_content()
             self.play_music()
 
     def init_play_content(self):
         audio_dir = self.audio_dir
+        print(audio_dir)
         self.playlist.clear()
 
         self.media_content = QMediaContent(QUrl.fromLocalFile(audio_dir))
@@ -145,21 +193,24 @@ class MainWindow(QWidget):
 
     def play_music(self):
         print("开始播放了！！！！！！！！！！！！！！！！！！！")
-        print(self.audio_dir)
         # 更改播放器为播放状态
         self.player.play()
         # 更改播放按钮为播放图片
-        # self.play_control.setIcon(QIcon('D:\Program Files (x86)\Python\Myplayer\image\播放.png'))
+        self.play_control.setIcon(self.play_icon)
         # 设置提示信息为播放
         self.play_control.setText("播放中")
 
+
     def pause_music(self):
+        print("暂停了！！！！！！！！！！！！！！")
         # 更改播放器为暂停状态
         self.player.pause()
         # 更改播放按钮的图片为暂停图片
-        # self.play_control.setIcon(QIcon('D:\Program Files (x86)\Python\Myplayer\image\暂停.png'))
+        self.play_control.setIcon(self.pause_icon)
         # 设置提示信息为暂停
         self.play_control.setText('暂停中')
+        print(self.play_control.text())
+        self.play_control.repaint()
 
     # TODO 计时器暂停
     def timer_control(self):
@@ -167,17 +218,19 @@ class MainWindow(QWidget):
 
     #TODO 记分暂停
     def scoring_control(self):
-        if self.play_control.setText('暂停中'):
+        print("判断状态中————————",self.play_control.text())
+        if self.play_control.text() == '暂停中':
             self.qa_judger.CAN_SCORE = False
-        elif self.play_control.setText('播放中'):
+            self.update_scoring("--------暂停中------------")
+        elif self.play_control.text() == '播放中':
             self.qa_judger.CAN_SCORE = True
 
-    def update_chat(self, message, nickname):
+    def update_chat(self, nickname, message):
         message_format = f'>> {nickname}：{message}'
-        messages = self.chatlabel.text() + "\n" + message_format
+        messages = self.chatlabel.text() + "\n" + message_format + "\n"
         print(message_format)
         self.chatlabel.setText(messages)
-        self.qa_judger.answer_process(QA_answer(raw_answer=message, q_roumaji=self.q_roumaji, nickname=nickname))
+        self.qa_judger.juder(QA_answer(raw_answer=message, q_roumaji=self.q_roumaji, nickname=nickname))
 
     def update_scoring(self, message):
         messages = self.scoring_label.text() + "\n" + message
@@ -186,14 +239,32 @@ class MainWindow(QWidget):
         self.update_team_score()
 
     def update_team_score(self):
-        self.red_team_score_label.setText(self.team_info.team_red.score)
-        self.blue_team_score_label.setText(self.team_info.team_blue.score)
+        self.red_team_score_label.setText("红队\n得分：" + str(self.team_info.team_red.score))
+        self.blue_team_score_label.setText("蓝队\n得分：" + str(self.team_info.team_blue.score))
+
+    def update_team_list(self,team_flag,nickname):
+        if team_flag == self.red_team_member_listview.team_flag:
+            self.red_team_member_listview.insertItem(0,QListWidgetItem(nickname))
+        elif team_flag == self.blue_team_member_listview.team_flag:
+            self.blue_team_member_listview.insertItem(0,QListWidgetItem(nickname))
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = MainWindow()
+    w = MainWindow(hiragana[:1])
+
+    def connect_damakusource(type_class,main_window_object):
+        # 实例化弹幕获取线程
+        input_thread = type_class()
+        # # 绑定更新弹幕函数
+        input_thread.testSignal.connect(w.update_chat)
+        input_thread.start()
+
+    connect_damakusource(DANMAKU,w)
+
+    # setup stylesheet
+    apply_stylesheet(app, theme='light_cyan.xml')
     w.resize(1000, 800)
     w.move(200, 200)
     w.setWindowTitle('五十音答题')

@@ -25,13 +25,14 @@ class QA_answer():
     def wash_raw_answer(self):
         raw_answer = self.raw_answer
         answer = raw_answer.strip()
-        if len(answer) > len(self.q_roumaji):
-            answer = answer[:len(self.q_roumaji)]
+        if len(answer) > len(self.q_roumaji) or len(answer) > 3:
+            answer = answer[:max(3,len(self.q_roumaji))]
         answer = answer.lower()
-        if answer.encode( 'UTF-8' ).isalpha() == True:
-            pass
-        else:
-            answer = answer[:1]
+        for i in range(1,len(answer)):
+            if answer.encode( 'UTF-8' ).isalpha() == True:
+                pass
+            else:
+                answer = answer[:i]
         return answer
 
 
@@ -53,12 +54,24 @@ class QAJudger(QThread):
         self.team_info = team_info
         self.CAN_SCORE = True
 
+    def juder(self, answerobj:QA_answer):
+        message = "\n"
+        try:
+            if self.CAN_SCORE == True:
+                message = self.answer_process(answerobj)
+            else:
+                pass
+        except Exception as e:
+            message = f"{str(e)}"
+            print(traceback.print_exc())
+        finally:
+            self.show_message(message)
+
     def is_answer_right(self):
         try:
             if get_roumaji(self.answer) == get_roumaji(self.question.q_roumaji):
                 return True
             else:
-                print(f"答案错误 \"{self.answer}\" 被作为答案尝试过了")
                 return False
         except Exception as e:
             if hasattr(e, 'message'):
@@ -104,7 +117,8 @@ class QAJudger(QThread):
     
     
     def gen_score(self):
-        hasFirstRightAnswer, ANSWERTYPE = self.question.hasFirstRightAnswer,self.answer
+        hasFirstRightAnswer = self.question.hasFirstRightAnswer
+        ANSWERTYPE = self.ANSWERTYPE
         score = self.BASIC_SCORE
         if hasFirstRightAnswer == False:
             score += self.FIRSTBLOODBONUSSCORE
@@ -119,35 +133,28 @@ class QAJudger(QThread):
         message = "".join([
             nickname,
             f" 回答正确 + {self.BASIC_SCORE} 分；",
-            self.first_blood_message(hasFirstRightAnswer),
-            self.answer_type_bonus_message(ANSWERTYPE)])
+            self.first_blood_message(),
+            self.answer_type_bonus_message()])
         return message
     
     
     def answer_process(self,answerobj:QA_answer):
-        if self.CAN_SCORE == True:
-            try:
-                self.answerobj = answerobj
-                self.answer = answerobj.answer
-                self.ANSWERTYPE = self.get_answer_type()
-
-                if self.is_answer_right():
-                    score = self.gen_score()
-                    message = self.gen_scoring_message()
-
-
-                    self.add_score(score)
-                    self.question.hasFirstRightAnswer = True
-            except Exception as e:
-                message = f"不能识别的答案:{str(e)}"
-
-
-            finally:
-                self.show_message(message)
-
-    def add_score(self, score):
+        self.answerobj = answerobj
+        self.answer = answerobj.answer
+        self.ANSWERTYPE = self.get_answer_type()
         nickname = self.answerobj.nickname
-        team_flag = self.team_info.get_team_flag(nickname)
+        team_flag = self.team_info.get_player_assign_team(nickname)
+
+        if self.is_answer_right():
+            score = self.gen_score()
+            message = self.gen_scoring_message()
+            self.add_score(score,team_flag)
+            self.question.hasFirstRightAnswer = True
+        else:
+            message = f"{self.answer}不是正确答案哦"
+        return message
+
+    def add_score(self, score,team_flag):
         self.team_info.add_score(score,team_flag)
 
     def show_message(self, message):

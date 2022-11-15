@@ -1,9 +1,32 @@
+import time
 from unittest import TestCase
+
+from PyQt5 import QtCore
+from PyQt5.QtCore import QThread
 
 from gojyuon_danmaku_game import main_game
 
 
-class TestMainWindow(TestCase):
+class TestMainWindow(TestCase,QThread):
+    testSignal = QtCore.pyqtSignal(str, str)
+
+    def __init__(self):
+        super(TestMainWindow, self).__init__()
+        self.ex_data = {
+            "猫猫":"a"
+
+        }
+
+    def run(self):
+        for i in self.ex_data.items():
+            print(i)
+            time.sleep(300)
+            self.test_emit_message(i,i.key)
+
+
+    def test_emit_message(self,message,uname):
+        self.testSignal.emit(message, uname)
+
     def test_init_ui(self):
         self.fail()
 
