@@ -46,7 +46,7 @@ class TestMainWindow(QThread):
 
     def run(self):
         for i in self.ex_data:
-            time.sleep(1)
+            time.sleep(2)
             self.testSignal.emit(i[0], i[1])
             print(f"{i[0]} {i[1]}")
 

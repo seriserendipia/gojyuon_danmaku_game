@@ -139,11 +139,12 @@ class QAJudger(QThread):
     
     
     def answer_process(self,answerobj:QA_answer):
+        nickname = answerobj.nickname
+        team_flag = self.team_info.get_player_assign_team(nickname)
+
         self.answerobj = answerobj
         self.answer = answerobj.answer
         self.ANSWERTYPE = self.get_answer_type()
-        nickname = self.answerobj.nickname
-        team_flag = self.team_info.get_player_assign_team(nickname)
 
         if self.is_answer_right():
             score = self.gen_score()
