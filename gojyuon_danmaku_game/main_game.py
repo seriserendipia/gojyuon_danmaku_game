@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QUrl, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QTransform
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
@@ -83,8 +83,8 @@ class MainWindow(QWidget):
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
 
-        self.play_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\播放.png")
-        self.pause_icon = QIcon(r"D:\PythonEx\gojyuon_danmaku_game\drawable\暂停.png")
+        self.play_icon = QIcon(r".\res\drawable\播放.png")
+        self.pause_icon = QIcon(r".\res\drawable\暂停.png")
 
         self.initUI()
 
@@ -141,10 +141,10 @@ class MainWindow(QWidget):
         grid_layout.setColumnStretch(2, 2)
         grid_layout.setColumnStretch(3, 1)
 
-        rule_pic = QPixmap(r"D:\PythonEx\gojyuon_danmaku_game\drawable\游戏规则（不带倒计时版）.png")
+        rule_pic = QPixmap(r"..\res\drawable\游戏规则（不带倒计时版）.png")
         self.rule_pic_label.setPixmap(rule_pic)
 
-        self.shuffle_pix = QPixmap(r"D:\PythonEx\gojyuon_danmaku_game\drawable\随机数生成-选中.png")
+        self.shuffle_pix = QPixmap(r"..\res\drawable\随机数生成-选中.png")
         self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
         self.shuffleButton.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         self.shuffleButton.setIconSize(QSize(128, 128))
@@ -189,10 +189,8 @@ class MainWindow(QWidget):
 
     def get_audio_dir(self):
         roumaji = self.q_roumaji
-        audio_dir = rf"D:\PythonEx\gojyuon_danmaku_game\音声素材\kana50on_{roumaji}.mp3"
+        audio_dir = rf"..\res\音声素材\kana50on_{roumaji}.mp3"
         return audio_dir
-
-
 
     def on_play_control_click(self):
         self.music_play_control()
@@ -220,7 +218,7 @@ class MainWindow(QWidget):
         self.media_content = QMediaContent(QUrl.fromLocalFile(audio_dir))
         self.playlist.addMedia(self.media_content)
         #添加空白音频
-        blank_media_content = QMediaContent(QUrl.fromLocalFile(r"D:\PythonEx\gojyuon_danmaku_game\音声素材\empty_voice.m4a"))
+        blank_media_content = QMediaContent(QUrl.fromLocalFile(r"..\res\音声素材\empty_voice.m4a"))
         self.playlist.addMedia(blank_media_content)
         self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
 
@@ -282,6 +280,10 @@ class MainWindow(QWidget):
         elif team_flag == self.blue_team_member_listview.team_flag:
             self.blue_team_member_listview.insertItem(0,QListWidgetItem(nickname))
 
+    def closeEvent(self, event) -> None:
+        self.input_thread_properly_stop_signal.emit()
+        super(MainWindow, self).closeEvent(event)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
@@ -289,7 +291,7 @@ if __name__ == '__main__':
     input_thread = DANMAKU()
     w = MainWindow(input_thread=input_thread,kana_range=hiragana[1:3])
 
-    stylesheetdir = r"D:\PythonEx\gojyuon_danmaku_game\drawable\my_stylesheet.qss"
+    stylesheetdir = r"..\res\drawable\my_stylesheet.qss"
     with open(stylesheetdir, "r") as fh:
         stylesheet = fh.read()
         w.setStyleSheet(stylesheet)

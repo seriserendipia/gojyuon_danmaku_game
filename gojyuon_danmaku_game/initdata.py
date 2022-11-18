@@ -1,11 +1,6 @@
 import numpy as np
 import pandas as pd
 
-#%%
-TEST_ROOM_IDS = [
-    26431522
-]
-
 # %%
 blank_label_fill_str = """
         """

@@ -47,7 +47,7 @@ class TestMainWindow(QThread):
     def run(self):
         for i in self.ex_data:
             time.sleep(1)
-            self.testSignal.emit(i[0], i[1])
+            self.danmaku_message_signal.emit(i[0], i[1])
             print(f"{i[0]} {i[1]}")
 
     def properly_stop(self):
@@ -59,8 +59,10 @@ if __name__ == '__main__':
     input_thread = TestMainWindow()
     w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
 
-    stylesheetdir = r"D:\PythonEx\gojyuon_danmaku_game\drawable\my_stylesheet.qss"
-    with open(stylesheetdir, "r") as fh:
+
+
+    stylesheetdir = "../res/drawable/my_stylesheet.qss"
+    with open(stylesheetdir, "r+") as fh:
         stylesheet = fh.read()
         w.setStyleSheet(stylesheet)
         try:

@@ -33,6 +33,6 @@ for roumaji_char in roumaji_chars:
     audio_file = requests.get(url, headers=headers, timeout=60)
     print(audio_file)
     save_file_name = url.split("/")[-1]
-    with open(os.path.join(r"D:\PythonEx\gojyuon_danmaku_game\音声素材", save_file_name), "wb+") as f:
+    with open(os.path.join(r"..\res\音声素材", save_file_name), "wb+") as f:
         f.write(audio_file.content)
         print("下载", save_file_name, "成功")
