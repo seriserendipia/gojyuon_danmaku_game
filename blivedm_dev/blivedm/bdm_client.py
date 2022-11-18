@@ -201,7 +201,7 @@ class BLiveClient:
         if self.is_running:
             logger.warning('room=%s client is running, cannot start() again', self.room_id)
             return
-
+        print("开始弹幕抓取线程")
         self._network_future = asyncio.ensure_future(self._network_coroutine_wrapper(), loop=self._loop)
 
     def stop(self):

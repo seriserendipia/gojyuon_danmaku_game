@@ -6,7 +6,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
 from blivedm_dev import blivedm
-from customize_config import BLIVE_ROOM_IDS
+from customize_config import BLIVE_ROOM_ID
 
 class DANMAKU(QThread):
     danmaku_message_signal = QtCore.pyqtSignal(str, str)
@@ -17,25 +17,27 @@ class DANMAKU(QThread):
     def run(self):
         self.new_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.new_loop)
-        self.new_loop.run_until_complete(self.main())
+        self.new_loop.run_until_complete(DANMAKU.main(self))
 
     async def main(self):
         await self.run_single_client()
 
     async def run_single_client(self):
-        room_id = BLIVE_ROOM_IDS
+        room_id = BLIVE_ROOM_ID
         # 如果SSL验证失败就把ssl设为False，B站真的有过忘续证书的情况
-        self.client = blivedm.BLiveClient(room_id, ssl=True)
-        handler = MyHandler()
-        handler.danmaku_message_signal = self.danmaku_message_signal
-        self.client.add_handler(handler)
-        self.client.start()
+        client = blivedm.BLiveClient(room_id, ssl=True)
+        handler = MyHandler1(self.danmaku_message_signal)
+        client.add_handler(handler)
+        client.start()
 
     def properly_stop(self):
         print("关闭弹幕抓取线程")
         self.new_loop.close()
 
-class MyHandler(blivedm.BaseHandler):
+class MyHandler1(blivedm.BaseHandler):
+
+    def __init__(self,danmaku_message_signal):
+        self.danmaku_message_signal = danmaku_message_signal
 
     async def _on_danmaku(self, client: blivedm.BLiveClient, message: blivedm.DanmakuMessage):
         print("抓取弹幕：")

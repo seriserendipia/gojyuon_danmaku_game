@@ -51,6 +51,7 @@ class TestMainWindow(QThread):
             print(f"{i[0]} {i[1]}")
 
     def properly_stop(self):
+        print("结束进程")
         self.exit()
 
 if __name__ == '__main__':
@@ -59,7 +60,9 @@ if __name__ == '__main__':
     input_thread = TestMainWindow()
     w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
 
-
+    # # 绑定更新弹幕函数
+    input_thread.danmaku_message_signal.connect(w.update_chat)
+    input_thread.start()
 
     stylesheetdir = "../res/drawable/my_stylesheet.qss"
     with open(stylesheetdir, "r+") as fh:

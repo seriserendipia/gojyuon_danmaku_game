@@ -1,5 +1,2 @@
 #自定义直播间房间号
-BLIVE_ROOM_IDS = [
-    # 26431522
-    7777
-]
+BLIVE_ROOM_ID = 7777

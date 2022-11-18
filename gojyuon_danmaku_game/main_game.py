@@ -25,13 +25,8 @@ class MainWindow(QWidget):
 
     def __init__(self,kana_range,input_thread):
         super().__init__()
+        self.input_thread_properly_stop_signal.connect(input_thread.properly_stop)
 
-        # 实例化弹幕获取线程
-        self.input_thread = input_thread
-        # # 绑定更新弹幕函数
-        self.input_thread.danmaku_message_signal.connect(self.update_chat)
-        self.input_thread_properly_stop_signal.connect(self.input_thread.properly_stop)
-        self.input_thread.start()
 
         #指定随机范围
         self.kana_range = kana_range
@@ -83,8 +78,8 @@ class MainWindow(QWidget):
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
 
-        self.play_icon = QIcon(r".\res\drawable\播放.png")
-        self.pause_icon = QIcon(r".\res\drawable\暂停.png")
+        self.play_icon = QIcon(r"..\res\drawable\播放.png")
+        self.pause_icon = QIcon(r"..\res\drawable\暂停.png")
 
         self.initUI()
 
@@ -289,10 +284,14 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     input_thread = DANMAKU()
-    w = MainWindow(input_thread=input_thread,kana_range=hiragana[1:3])
+    w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
 
-    stylesheetdir = r"..\res\drawable\my_stylesheet.qss"
-    with open(stylesheetdir, "r") as fh:
+    # # 绑定更新弹幕函数
+    input_thread.danmaku_message_signal.connect(w.update_chat)
+    input_thread.start()
+
+    stylesheetdir = "../res/drawable/my_stylesheet.qss"
+    with open(stylesheetdir, "r+") as fh:
         stylesheet = fh.read()
         w.setStyleSheet(stylesheet)
         try:
