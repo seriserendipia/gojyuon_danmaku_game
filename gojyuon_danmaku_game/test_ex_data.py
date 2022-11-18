@@ -7,7 +7,7 @@ import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication
-from qt_material import apply_stylesheet
+
 
 from gojyuon_danmaku_game import initdata
 from gojyuon_danmaku_game.main_game import MainWindow
@@ -15,7 +15,7 @@ from initdata import hiragana
 
 
 class TestMainWindow(QThread):
-    testSignal = QtCore.pyqtSignal(str, str)
+    danmaku_message_signal = QtCore.pyqtSignal(str, str)
 
     def __init__(self):
         super(TestMainWindow, self).__init__()
@@ -50,31 +50,24 @@ class TestMainWindow(QThread):
             self.testSignal.emit(i[0], i[1])
             print(f"{i[0]} {i[1]}")
 
+    def properly_stop(self):
+        self.exit()
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = MainWindow(hiragana[:1])
-
-    # 实例化弹幕获取线程
     input_thread = TestMainWindow()
-    # # 绑定更新弹幕函数
-    input_thread.testSignal.connect(w.update_chat)
-    input_thread.start()
+    w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
 
+    stylesheetdir = r"D:\PythonEx\gojyuon_danmaku_game\drawable\my_stylesheet.qss"
+    with open(stylesheetdir, "r") as fh:
+        stylesheet = fh.read()
+        w.setStyleSheet(stylesheet)
+        try:
+            app.setStyleSheet(stylesheet)
+        except:
+            app.style_sheet = stylesheet
 
-    extra = {
-
-        # Button colors
-        'danger': '#dc3545',
-        'warning': '#ffc107',
-        'success': '#3e88c5',
-
-        # Font
-        'font_family': 'Microsoft YaHei',
-        'font_size': '60px',
-    }
-
-    apply_stylesheet(app, theme=r'D:\PythonEx\gojyuon_danmaku_game\drawable\light_white.xml',save_as="",extra=extra)
     w.resize(1000, 800)
     w.move(200, 200)
     w.setWindowTitle('五十音弹幕游戏')

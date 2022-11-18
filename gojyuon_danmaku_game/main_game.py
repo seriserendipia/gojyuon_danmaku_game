@@ -1,12 +1,13 @@
 import sys
 
+from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QTransform
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimedia import QMediaPlayer
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QGridLayout, \
     QScrollArea, QListWidget, QListWidgetItem, QSizePolicy, QGroupBox, QHBoxLayout
-from qt_material import apply_stylesheet
+
 
 from gojyuon_danmaku_game.QA_control import QAJudger, QA_question, QA_answer
 from gojyuon_danmaku_game.danmaku import DANMAKU
@@ -20,9 +21,18 @@ class QTeamListWidget(QListWidget):
         self.team_flag = team_flag
 
 class MainWindow(QWidget):
+    input_thread_properly_stop_signal = QtCore.pyqtSignal()
 
-    def __init__(self,kana_range):
+    def __init__(self,kana_range,input_thread):
         super().__init__()
+
+        # 实例化弹幕获取线程
+        self.input_thread = input_thread
+        # # 绑定更新弹幕函数
+        self.input_thread.danmaku_message_signal.connect(self.update_chat)
+        self.input_thread_properly_stop_signal.connect(self.input_thread.properly_stop)
+        self.input_thread.start()
+
         #指定随机范围
         self.kana_range = kana_range
 
@@ -46,12 +56,21 @@ class MainWindow(QWidget):
         self.scoring_label_groupbox = QGroupBox("游戏记录")
         self.scoring_layout = QHBoxLayout()
         self.scoring_layout.addWidget(self.scoring_label_scroll_area)
-        self.chatlabel_groupbox.setLayout(self.scoring_layout)
+        self.scoring_label_groupbox.setLayout(self.scoring_layout)
 
         self.rule_pic_label = QLabel()
 
         self.red_team_member_listview = QTeamListWidget("红")
+        self.red_team_member_groupbox = QGroupBox("红队队员")
+        self.red_team_member_layout = QHBoxLayout()
+        self.red_team_member_layout.addWidget(self.red_team_member_listview)
+        self.red_team_member_groupbox.setLayout(self.red_team_member_layout)
+
         self.blue_team_member_listview = QTeamListWidget("蓝")
+        self.blue_team_member_groupbox = QGroupBox("蓝队队员")
+        self.blue_team_member_layout = QHBoxLayout()
+        self.blue_team_member_layout.addWidget(self.blue_team_member_listview)
+        self.blue_team_member_groupbox.setLayout(self.blue_team_member_layout)
 
         self.red_team_score_label = QLabel("红队\n得分：0")
         self.red_team_score_label.setFont(QFont("Microsoft YaHei", 30))
@@ -109,8 +128,8 @@ class MainWindow(QWidget):
         grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
         grid_layout.addWidget(self.scoring_label_groupbox,2,1,1,1)
         grid_layout.addWidget(self.chatlabel_groupbox, 2, 2, 1, 1)
-        grid_layout.addWidget(self.red_team_member_listview,1,0,3,1)
-        grid_layout.addWidget(self.blue_team_member_listview,1,3,3,1)
+        grid_layout.addWidget(self.red_team_member_groupbox,1,0,3,1)
+        grid_layout.addWidget(self.blue_team_member_groupbox,1,3,3,1)
 
         # 设定第几行，占面积的比例
         grid_layout.setRowStretch(0, 2)
@@ -267,19 +286,21 @@ class MainWindow(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = MainWindow(hiragana[:1])
-
-    # 实例化弹幕获取线程
     input_thread = DANMAKU()
-    # # 绑定更新弹幕函数
-    input_thread.testSignal.connect(w.update_chat)
-    input_thread.start()
+    w = MainWindow(input_thread=input_thread,kana_range=hiragana[1:3])
 
-    # setup stylesheet
-    apply_stylesheet(app, theme='light_amber.xml')
+    stylesheetdir = r"D:\PythonEx\gojyuon_danmaku_game\drawable\my_stylesheet.qss"
+    with open(stylesheetdir, "r") as fh:
+        stylesheet = fh.read()
+        w.setStyleSheet(stylesheet)
+        try:
+            app.setStyleSheet(stylesheet)
+        except:
+            app.style_sheet = stylesheet
+
     w.resize(1000, 800)
     w.move(200, 200)
-    w.setWindowTitle('五十音答题')
+    w.setWindowTitle('五十音弹幕游戏')
     w.show()
 
     sys.exit(app.exec_())

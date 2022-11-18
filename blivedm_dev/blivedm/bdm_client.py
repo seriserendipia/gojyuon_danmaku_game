@@ -11,7 +11,6 @@ from typing import Optional, Union, List
 import aiohttp
 import brotli
 
-
 __all__ = (
     'BLiveClient',
 )
