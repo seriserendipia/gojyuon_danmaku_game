@@ -1,6 +1,5 @@
 import sys
 
-from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QUrl, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QTransform
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
@@ -21,13 +20,9 @@ class QTeamListWidget(QListWidget):
         self.team_flag = team_flag
 
 class MainWindow(QWidget):
-    input_thread_properly_stop_signal = QtCore.pyqtSignal()
 
-    def __init__(self,kana_range,input_thread):
+    def __init__(self,kana_range):
         super().__init__()
-        self.input_thread_properly_stop_signal.connect(input_thread.properly_stop)
-
-
         #指定随机范围
         self.kana_range = kana_range
 
@@ -283,11 +278,12 @@ class MainWindow(QWidget):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    input_thread = DANMAKU()
-    w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
+    w = MainWindow(hiragana[:1])
 
+    # 实例化弹幕获取线程
+    input_thread = DANMAKU()
     # # 绑定更新弹幕函数
-    input_thread.danmaku_message_signal.connect(w.update_chat)
+    input_thread.testSignal.connect(w.update_chat)
     input_thread.start()
 
     stylesheetdir = "../res/drawable/my_stylesheet.qss"

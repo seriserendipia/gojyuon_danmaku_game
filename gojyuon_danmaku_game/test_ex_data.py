@@ -15,7 +15,7 @@ from initdata import hiragana
 
 
 class TestMainWindow(QThread):
-    danmaku_message_signal = QtCore.pyqtSignal(str, str)
+    testSignal = QtCore.pyqtSignal(str, str)
 
     def __init__(self):
         super(TestMainWindow, self).__init__()
@@ -46,8 +46,8 @@ class TestMainWindow(QThread):
 
     def run(self):
         for i in self.ex_data:
-            time.sleep(1)
-            self.danmaku_message_signal.emit(i[0], i[1])
+            time.sleep(2)
+            self.testSignal.emit(i[0], i[1])
             print(f"{i[0]} {i[1]}")
 
     def properly_stop(self):
@@ -57,11 +57,12 @@ class TestMainWindow(QThread):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    input_thread = TestMainWindow()
-    w = MainWindow(input_thread=input_thread, kana_range=hiragana[1:3])
+    w = MainWindow(hiragana[:1])
 
+    # 实例化弹幕获取线程
+    input_thread = TestMainWindow()
     # # 绑定更新弹幕函数
-    input_thread.danmaku_message_signal.connect(w.update_chat)
+    input_thread.testSignal.connect(w.update_chat)
     input_thread.start()
 
     stylesheetdir = "../res/drawable/my_stylesheet.qss"

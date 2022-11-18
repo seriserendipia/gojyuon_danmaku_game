@@ -44,12 +44,14 @@ class TeamInfo(QThread):
         for i in self.team_list:
             if i.is_nickname_in_this_team(nickname):
                 return i.team_flag
+
         raise Exception(f"该昵称{nickname}尚未分配队伍")
 
     def get_player_assign_team(self, nickname):
         try:
             return self.get_team_flag(nickname)
-        except Exception:
+        except Exception as e:
+            print(str(e))
             if len(self.team_red.member_list) > len(self.team_blue.member_list):
                 team = self.team_blue
             else:
