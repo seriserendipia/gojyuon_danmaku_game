@@ -30,6 +30,15 @@ class DANMAKU(QThread):
         client.add_handler(handler)
         client.start()
 
+        try:
+            # 演示5秒后停止
+            await asyncio.sleep(100)
+            client.stop()
+
+            await client.join()
+        finally:
+            await client.stop_and_close()
+
     def properly_stop(self):
         print("关闭弹幕抓取线程")
         self.new_loop.close()

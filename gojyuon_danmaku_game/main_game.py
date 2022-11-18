@@ -283,7 +283,7 @@ if __name__ == '__main__':
     # 实例化弹幕获取线程
     input_thread = DANMAKU()
     # # 绑定更新弹幕函数
-    input_thread.testSignal.connect(w.update_chat)
+    input_thread.danmaku_message_signal.connect(w.update_chat)
     input_thread.start()
 
     stylesheetdir = "../res/drawable/my_stylesheet.qss"
