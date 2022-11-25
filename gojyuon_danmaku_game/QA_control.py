@@ -4,14 +4,18 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
 from gojyuon_danmaku_game.initdata import hiragana, katakana, \
-    roumaji, get_roumaji
-from gojyuon_danmaku_game.team_factory import TeamInfo
+    roumaji, get_roumaji, get_hiragana
+from gojyuon_danmaku_game.team import TeamInfo
 
 
 class QA_question():
 
-    def __init__(self,q_roumaji):
+    def __init__(self, q_roumaji, *kana):
         self.q_roumaji = q_roumaji
+        if len(kana) == 0:
+            self.q_kana = get_hiragana(self.q_roumaji)
+        else:
+            self.q_kana = kana[0]
         self.hasFirstRightAnswer = False
 
 
@@ -160,3 +164,22 @@ class QAJudger(QThread):
 
     def show_message(self, message):
         self.scoring_message_Signal.emit(message)
+
+
+class SignatureQAJudger(QAJudger):
+
+    def is_answer_right(self):
+        try:
+            if self.answer == self.question.q_kana:
+                raise Exception("{self.answer}是题面哦")
+            else:
+                if get_roumaji(self.answer) == get_roumaji(self.question.q_kana):
+                    return True
+                else:
+                    return False
+        except Exception as e:
+            if hasattr(e, 'message'):
+                print("答案错误",e.message)
+            else:
+                print("答案错误",e)
+            return False

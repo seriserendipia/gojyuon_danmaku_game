@@ -13,7 +13,6 @@ class Team:
     def add_member(self,nickname):
         self.member_list.append(nickname)
 
-
     def is_nickname_in_this_team(self,nickname):
         if nickname in self.member_list:
             return True

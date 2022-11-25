@@ -14,11 +14,11 @@ from gojyuon_danmaku_game.main_game import MainWindow
 from initdata import hiragana
 
 
-class TestMainWindow(QThread):
-    testSignal = QtCore.pyqtSignal(str, str)
+class TestDataGeneratorThread(QThread):
+    danmaku_message_signal = QtCore.pyqtSignal(str, str)
 
     def __init__(self):
-        super(TestMainWindow, self).__init__()
+        super(TestDataGeneratorThread, self).__init__()
         self.ex_data = [("猫猫","a")]
 
         name_list = ["狗子","鲸鱼","大兔子","垂耳兔","黑兔","朱迪","尼克","闪电","棉花糖","泡泡","水母",
@@ -26,7 +26,7 @@ class TestMainWindow(QThread):
                      "豹子","仓仓","鼠鼠","大白鼠","米老鼠","妙妙米奇","快乐星球","小兔子","兔子尾巴","佐乌",
                      "咕咕咕鸽咕咕","云雀","青鸟","仙鹤","长颈鹿"]
 
-        hira = np.array(initdata.hiragana[:2]).flatten()
+        hira = np.array(initdata.hiragana[:1]).flatten()
         rou = np.array(initdata.roumaji[:1]).flatten()
         kana = np.array(initdata.katakana[:1]).flatten()
         kana_range = np.append(hira,rou)
@@ -38,7 +38,7 @@ class TestMainWindow(QThread):
             message1 = random.choice(string.ascii_letters + string.digits + string.punctuation)
             message2 = np.random.choice(kana_range)
             messagelist = []
-            messagelist.append(message1)
+            # messagelist.append(message1)
             messagelist.append(message2)
             message = np.random.choice(messagelist)
             name = np.random.choice(name_list)
@@ -47,7 +47,7 @@ class TestMainWindow(QThread):
     def run(self):
         for i in self.ex_data:
             time.sleep(2)
-            self.testSignal.emit(i[0], i[1])
+            self.danmaku_message_signal.emit(i[0], i[1])
             print(f"{i[0]} {i[1]}")
 
     def properly_stop(self):
@@ -60,9 +60,9 @@ if __name__ == '__main__':
     w = MainWindow(hiragana[:1])
 
     # 实例化弹幕获取线程
-    input_thread = TestMainWindow()
+    input_thread = TestDataGeneratorThread()
     # # 绑定更新弹幕函数
-    input_thread.testSignal.connect(w.update_chat)
+    input_thread.danmaku_message_signal.connect(w.update_chat)
     input_thread.start()
 
     stylesheetdir = "../res/drawable/my_stylesheet.qss"
