@@ -1,18 +1,18 @@
-import sys
+from abc import ABCMeta, abstractmethod
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QUrl, QSize, Qt
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QTransform
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimedia import QMediaPlayer
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QGridLayout, \
+from PyQt5.QtWidgets import QWidget, QPushButton, QLabel, QGridLayout, \
     QScrollArea, QListWidget, QListWidgetItem, QSizePolicy, QGroupBox, QHBoxLayout
 
-
-from gojyuon_danmaku_game.QA_control import QAJudger, QA_question, QA_answer
-from gojyuon_danmaku_game.danmaku import DANMAKU
-from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji, blank_label_fill_str
+from customize_config import play_tip, pause_tip
+from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question, QA_answer
+from gojyuon_danmaku_game.initdata import shuffle, get_roumaji, blank_label_fill_str
 from gojyuon_danmaku_game.team import TeamInfo
+
 
 class QTeamListWidget(QListWidget):
     def __init__(self,team_flag):
@@ -83,50 +83,29 @@ class BaseGUI(QWidget):
             self.shuffleButton.clicked.connect(self.on_shuffle_click)
             self.play_control.clicked.connect(self.on_play_control_click)
 
-            # 初始化第一题，自定义资源位置！
+            # 初始化第一题
             self.init_new_question("a")
 
-            self.player.setVolume(100)
-
-            self.chatlabel_scroll_area.setWidgetResizable(True)
-            self.chatlabel_scroll_area.setWidget(self.chatlabel)
-            self.chatlabel_scroll_area.verticalScrollBar().rangeChanged.connect(
-                lambda: self.chatlabel_scroll_area.verticalScrollBar().setValue(
-                    self.chatlabel_scroll_area.verticalScrollBar().maximum()
-                )
-            )
-
-            self.scoring_label_scroll_area.setWidgetResizable(True)
-            self.scoring_label_scroll_area.setWidget(self.scoring_label)
-            self.scoring_label_scroll_area.verticalScrollBar().rangeChanged.connect(
-                lambda: self.scoring_label_scroll_area.verticalScrollBar().setValue(
-                    self.scoring_label_scroll_area.verticalScrollBar().maximum()
-                )
-            )
-
-            grid_layout = QGridLayout()
-            grid_layout.addWidget(self.red_team_score_label, 0, 0, 1, 1)
-            grid_layout.addWidget(self.blue_team_score_label, 0, 3, 1, 1)
-            grid_layout.addWidget(self.rule_pic_label, 0, 1, 1, 2, alignment=Qt.AlignCenter)
-            grid_layout.addWidget(self.shuffleButton, 1, 1, 1, 1)
-            grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
-            grid_layout.addWidget(self.scoring_label_groupbox, 2, 1, 1, 1)
-            grid_layout.addWidget(self.chatlabel_groupbox, 2, 2, 1, 1)
-            grid_layout.addWidget(self.red_team_member_groupbox, 1, 0, 3, 1)
-            grid_layout.addWidget(self.blue_team_member_groupbox, 1, 3, 3, 1)
+            self.grid_layout = QGridLayout()
+            self.grid_layout.addWidget(self.red_team_score_label, 0, 0, 1, 1)
+            self.grid_layout.addWidget(self.blue_team_score_label, 0, 3, 1, 1)
+            self.grid_layout.addWidget(self.middle_label, 0, 1, 1, 2, alignment=Qt.AlignCenter)
+            self.grid_layout.addWidget(self.shuffleButton, 1, 1, 1, 1)
+            self.grid_layout.addWidget(self.play_control, 1, 2, 1, 1)
+            self.grid_layout.addWidget(self.scoring_label_groupbox, 2, 1, 1, 1)
+            self.grid_layout.addWidget(self.chatlabel_groupbox, 2, 2, 1, 1)
+            self.grid_layout.addWidget(self.red_team_member_groupbox, 1, 0, 3, 1)
+            self.grid_layout.addWidget(self.blue_team_member_groupbox, 1, 3, 3, 1)
 
             # 设定第几行，占面积的比例
-            grid_layout.setRowStretch(0, 2)
-            grid_layout.setRowStretch(1, 1)
-            grid_layout.setRowStretch(2, 2)
+            self.grid_layout.setRowStretch(0, 2)
+            self.grid_layout.setRowStretch(1, 1)
+            self.grid_layout.setRowStretch(2, 2)
 
-            grid_layout.setColumnStretch(0, 1)
-            grid_layout.setColumnStretch(1, 2)
-            grid_layout.setColumnStretch(2, 2)
-            grid_layout.setColumnStretch(3, 1)
-
-            rule_pic = QPixmap(r"..\res\drawable\游戏规则（不带倒计时版）.png")
-            self.rule_pic_label.setPixmap(rule_pic)
+            self.grid_layout.setColumnStretch(0, 1)
+            self.grid_layout.setColumnStretch(1, 2)
+            self.grid_layout.setColumnStretch(2, 2)
+            self.grid_layout.setColumnStretch(3, 1)
 
             self.shuffle_pix = QPixmap(r"..\res\drawable\随机数生成-选中.png")
             self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
@@ -137,10 +116,11 @@ class BaseGUI(QWidget):
             self.play_control.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self.play_control.setIconSize(QSize(128, 128))
 
-            self.setLayout(grid_layout)
+            self.setLayout(self.grid_layout)
 
+        @abstractmethod
         def init_qa_judger(self):
-            return QAJudger(QA_question(self.q_roumaji), self.team_info)
+            pass
 
         def on_shuffle_click(self):
             transform = QTransform()  ##需要用到pyqt5中QTransform函数
@@ -148,89 +128,49 @@ class BaseGUI(QWidget):
             self.shuffle_pix = self.shuffle_pix.transformed(transform)  ##对image进行旋转
             self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
             self.shuffleButton.setIconSize(QSize(128, 128))
-            print("换题啦！！！！！！！！！")
             random_kana = shuffle(self.kana_range)
             random_roumaji_char = get_roumaji(random_kana)
             self.init_new_question(random_roumaji_char)
+            print("---------题目刷新---------------")
             self.update_scoring("---------题目刷新---------------")
 
         def init_new_question(self, random_roumaji_char):
             self.q_roumaji = random_roumaji_char
-            self.change_audio()
             self.qa_judger = self.init_qa_judger()
             self.qa_judger.scoring_message_Signal.connect(self.update_scoring)
 
-        def change_audio(self):
-            self.player.stop()
-            self.audio_dir = self.get_audio_dir()
-            self.music_play_control()
-
-        def get_audio_dir(self):
-            roumaji = self.q_roumaji
-            audio_dir = rf"..\res\音声素材\kana50on_{roumaji}.mp3"
-            return audio_dir
-
         def on_play_control_click(self):
-            self.music_play_control()
+            self.set_play_status()
             self.timer_control()
             self.scoring_control()
 
-        def music_play_control(self):
-            # 判断是否是暂停状态
-            if self.player.state() == QMediaPlayer.State.PausedState:
-                self.play_music()
-            # 判断是否是播放状态,是就暂停
-            elif self.player.state() == QMediaPlayer.State.PlayingState:
-                self.pause_music()
-            # 初始化音频内容
-            else:
-                print("初始化音频！！！！！！！！！")
-                self.init_play_content()
-                self.play_music()
+        def set_play_status(self):
+            icon = self.play_icon
+            tip = play_tip
+            self.set_play_control_button_appearance(icon, tip)
 
-        def init_play_content(self):
-            audio_dir = self.audio_dir
-            print("音频路径：", audio_dir)
-            self.playlist.clear()
+        def set_pause_status(self):
+            icon = self.pause_icon
+            tip = pause_tip
+            self.set_play_control_button_appearance(icon, tip)
 
-            self.media_content = QMediaContent(QUrl.fromLocalFile(audio_dir))
-            self.playlist.addMedia(self.media_content)
-            # 添加空白音频
-            blank_media_content = QMediaContent(QUrl.fromLocalFile(r"..\res\音声素材\empty_voice.m4a"))
-            self.playlist.addMedia(blank_media_content)
-            self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
-
-        def play_music(self):
-            print("开始播放了！！！！！！！！！！！！！！！！！！！")
-            # 更改播放器为播放状态
-            self.player.play()
-            # 更改播放按钮为播放图片
-            self.play_control.setIcon(self.play_icon)
-            # 设置提示信息为播放
-            self.play_control.setText("播放中")
-
-        def pause_music(self):
-            print("暂停了！！！！！！！！！！！！！！")
-            # 更改播放器为暂停状态
-            self.player.pause()
-            # 更改播放按钮的图片为暂停图片
-            self.play_control.setIcon(self.pause_icon)
-            # 设置提示信息为暂停
-            self.play_control.setText('暂停中')
-            print("游戏状态为：", self.play_control.text())
+        def set_play_control_button_appearance(self, icon, tip):
+            # 更改播放按钮的图片
+            self.play_control.setIcon(icon)
+            # 设置提示信息
+            self.play_control.setToolTip(tip)
             self.play_control.repaint()
+            print(f"-----------{tip}----------------")
+            self.update_scoring(f"--------{tip}------------")
 
         # TODO 计时器暂停
         def timer_control(self):
             pass
 
-        # TODO 记分暂停
         def scoring_control(self):
-            print("判断状态中————————", self.play_control.text())
-            if self.play_control.text() == '暂停中':
+            if self.play_control.toolTip() == pause_tip:
                 self.qa_judger.CAN_SCORE = False
-                self.update_scoring("--------暂停中------------")
-            elif self.play_control.text() == '播放中':
+            elif self.play_control.toolTip() == play_tip:
                 self.qa_judger.CAN_SCORE = True
 
         def update_chat(self, nickname, message):
@@ -258,4 +198,4 @@ class BaseGUI(QWidget):
 
         def closeEvent(self, event) -> None:
             self.input_thread_properly_stop_signal.emit()
-            super(MainWindow, self).closeEvent(event)
+            super(BaseGUI, self).closeEvent(event)

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication
 
 
 from gojyuon_danmaku_game import initdata
-from gojyuon_danmaku_game.main_game import MainWindow
+from gojyuon_danmaku_game.listening_game import ListeningGame
 from initdata import hiragana
 
 
@@ -57,7 +57,7 @@ class TestDataGeneratorThread(QThread):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = MainWindow(hiragana[:1])
+    w = ListeningGame(hiragana[:1])
 
     # 实例化弹幕获取线程
     input_thread = TestDataGeneratorThread()

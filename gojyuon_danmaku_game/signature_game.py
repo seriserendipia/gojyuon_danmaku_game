@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QGridLay
     QScrollArea, QListWidget, QListWidgetItem, QSizePolicy, QGroupBox, QHBoxLayout
 
 
-from gojyuon_danmaku_game.QA_control import QAJudger, QA_question, QA_answer, SignatureQAJudger
+from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question, QA_answer, SignatureQAJudger
 from gojyuon_danmaku_game.danmaku import DANMAKU
 from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji, blank_label_fill_str, get_hiragana, katakana
 from gojyuon_danmaku_game.team import TeamInfo

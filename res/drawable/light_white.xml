@@ -15,7 +15,9 @@
   <color name="secondaryDarkColor">#ffffff</color>
 <!--  背景色-->
 
-  <color name="primaryTextColor">#515151</color>
+  <color name="primaryTextColor">#ffffff</color>
 
-  <color name="secondaryTextColor">#515151</color>
+
+  <color name="secondaryTextColor">#ffffff</color>
+<!--  鼠标停留的提示框颜色-->
 </resources>

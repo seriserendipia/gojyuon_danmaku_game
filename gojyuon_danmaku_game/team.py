@@ -2,7 +2,7 @@ import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
-
+#TODO 暂停时也能加入队伍
 class Team:
 
     def __init__(self,team_flag:str):

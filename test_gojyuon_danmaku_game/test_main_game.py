@@ -4,7 +4,7 @@ from unittest import TestCase
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
-from gojyuon_danmaku_game import main_game
+from gojyuon_danmaku_game import listening_game
 
 
 class TestMainWindow(TestCase,QThread):
@@ -61,7 +61,7 @@ class TestMainWindow(TestCase,QThread):
         self.fail()
 
     def test_play_music(self):
-        main_game.MainWindow().play_music()
+        main_game.ListeningGame().play_music()
 
     def test_pause_music(self):
         self.fail()

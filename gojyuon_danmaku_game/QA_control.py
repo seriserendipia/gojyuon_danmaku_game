@@ -41,7 +41,7 @@ class QA_answer():
 
 
 # %%
-class QAJudger(QThread):
+class ListeningQAJudger(QThread):
     scoring_message_Signal = QtCore.pyqtSignal(str)
 
     # 得分数值策划
@@ -53,7 +53,7 @@ class QAJudger(QThread):
 
 
     def __init__(self, question:QA_question,team_info:TeamInfo):
-        super(QAJudger,self).__init__()
+        super(ListeningQAJudger, self).__init__()
         self.question = question
         self.team_info = team_info
         self.CAN_SCORE = True
@@ -166,7 +166,7 @@ class QAJudger(QThread):
         self.scoring_message_Signal.emit(message)
 
 
-class SignatureQAJudger(QAJudger):
+class SignatureQAJudger(ListeningQAJudger):
 
     def is_answer_right(self):
         try:
