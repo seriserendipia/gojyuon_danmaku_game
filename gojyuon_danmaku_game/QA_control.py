@@ -10,12 +10,9 @@ from gojyuon_danmaku_game.team import TeamInfo
 
 class QA_question():
 
-    def __init__(self, q_roumaji, *kana):
+    def __init__(self, q_roumaji, q_kana):
         self.q_roumaji = q_roumaji
-        if len(kana) == 0:
-            self.q_kana = get_hiragana(self.q_roumaji)
-        else:
-            self.q_kana = kana[0]
+        self.q_kana = q_kana
         self.hasFirstRightAnswer = False
 
 
@@ -166,7 +163,7 @@ class ListeningQAJudger(QThread):
         self.scoring_message_Signal.emit(message)
 
 
-class SignatureQAJudger(ListeningQAJudger):
+class CharQAJudger(ListeningQAJudger):
 
     def is_answer_right(self):
         try:

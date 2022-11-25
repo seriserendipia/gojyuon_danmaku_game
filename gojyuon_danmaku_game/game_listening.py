@@ -8,18 +8,18 @@ from PyQt5.QtWidgets import QApplication
 
 from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question
 from gojyuon_danmaku_game.danmaku import DANMAKU
-from gojyuon_danmaku_game.game_basegui import BaseGUI
+from gojyuon_danmaku_game.game_basegui import GameBaseGUI
 from gojyuon_danmaku_game.initdata import hiragana
 
 
-class ListeningGame(BaseGUI):
+class ListeningGame(GameBaseGUI):
 
-    def __init__(self, kana_range):
+    def __init__(self, char_range):
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
 
-        super(ListeningGame, self).__init__(kana_range)
+        super(ListeningGame, self).__init__(char_range)
 
     def initUI(self):
         super(ListeningGame, self).initUI()
@@ -28,10 +28,10 @@ class ListeningGame(BaseGUI):
         self.middle_label.setPixmap(rule_pic)
 
     def init_qa_judger(self):
-        return ListeningQAJudger(QA_question(self.q_roumaji), self.team_info)
+        return ListeningQAJudger(QA_question(self.q_roumaji,self.q_char), self.team_info)
 
-    def init_new_question(self, random_roumaji_char):
-        super(ListeningGame, self).init_new_question(random_roumaji_char)
+    def init_new_question(self, random_char):
+        super(ListeningGame, self).init_new_question(random_char)
         self.change_audio()
 
     def change_audio(self):

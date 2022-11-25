@@ -1,3 +1,4 @@
+import traceback
 from abc import abstractmethod
 
 from PyQt5 import QtCore
@@ -18,13 +19,13 @@ class QTeamListWidget(QListWidget):
         self.team_flag = team_flag
 
 
-class BaseGUI(QWidget):
+class GameBaseGUI(QWidget):
     input_thread_properly_stop_signal = QtCore.pyqtSignal()
 
-    def __init__(self, kana_range):
+    def __init__(self, char_range):
         super().__init__()
         # 指定随机范围
-        self.kana_range = kana_range
+        self.char_range = char_range
 
         # 界面组件Widget初始化
         self.shuffleButton = QPushButton()
@@ -85,7 +86,7 @@ class BaseGUI(QWidget):
         self.play_control.clicked.connect(self.on_play_control_click)
 
         # 初始化第一题
-        self.init_new_question("a")
+        self.init_new_question("あ")
 
         self.chatlabel_scroll_area.setWidgetResizable(True)
         self.chatlabel_scroll_area.verticalScrollBar().rangeChanged.connect(
@@ -138,26 +139,40 @@ class BaseGUI(QWidget):
         pass
 
     def on_shuffle_click(self):
+        self.rotate_shuffle_button_icon()
+        random_char = self.random_question()
+        self.init_new_question(random_char)
+        self.update_scoring("---------题目刷新---------------")
+
+    def random_question(self):
+        random_char = shuffle(self.char_range)
+        return random_char
+
+    def rotate_shuffle_button_icon(self):
         transform = QTransform()  ##需要用到pyqt5中QTransform函数
         transform.rotate(90)  ##设置旋转角度——顺时针旋转90°
         self.shuffle_pix = self.shuffle_pix.transformed(transform)  ##对image进行旋转
         self.shuffleButton.setIcon(QIcon(self.shuffle_pix))
         self.shuffleButton.setIconSize(QSize(128, 128))
-        random_kana = shuffle(self.kana_range)
-        random_roumaji_char = get_roumaji(random_kana)
-        self.init_new_question(random_roumaji_char)
-        print("---------题目刷新---------------")
-        self.update_scoring("---------题目刷新---------------")
 
-    def init_new_question(self, random_roumaji_char):
-        self.q_roumaji = random_roumaji_char
+    def init_new_question(self, random_char):
+        self.q_char = random_char
+        self.q_roumaji = get_roumaji(random_char)
         self.qa_judger = self.init_qa_judger()
         self.qa_judger.scoring_message_Signal.connect(self.update_scoring)
+        self.set_play_status()
 
     def on_play_control_click(self):
-        self.set_play_status()
         self.timer_control()
-        self.scoring_control()
+        if self.play_control.toolTip() == pause_tip:
+            self.set_play_status()
+            self.qa_judger.CAN_SCORE = True
+        elif self.play_control.toolTip() == play_tip:
+            self.set_pause_status()
+            self.qa_judger.CAN_SCORE = False
+        else:
+            self.set_play_status()
+            self.qa_judger.CAN_SCORE = True
 
     def set_play_status(self):
         icon = self.play_icon
@@ -175,18 +190,11 @@ class BaseGUI(QWidget):
         # 设置提示信息
         self.play_control.setToolTip(tip)
         self.play_control.repaint()
-        print(f"-----------{tip}----------------")
         self.update_scoring(f"--------{tip}------------")
 
     # TODO 计时器暂停
     def timer_control(self):
         pass
-
-    def scoring_control(self):
-        if self.play_control.toolTip() == pause_tip:
-            self.qa_judger.CAN_SCORE = False
-        elif self.play_control.toolTip() == play_tip:
-            self.qa_judger.CAN_SCORE = True
 
     def update_chat(self, nickname, message):
         message_format = f'>> {nickname}：{message}'
@@ -213,4 +221,4 @@ class BaseGUI(QWidget):
 
     def closeEvent(self, event) -> None:
         self.input_thread_properly_stop_signal.emit()
-        super(BaseGUI, self).closeEvent(event)
+        super(GameBaseGUI, self).closeEvent(event)

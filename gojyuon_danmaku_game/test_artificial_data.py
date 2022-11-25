@@ -8,8 +8,8 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication
 
-
 from gojyuon_danmaku_game import initdata
+from gojyuon_danmaku_game.game_char import CharGame
 from gojyuon_danmaku_game.game_listening import ListeningGame
 from initdata import hiragana
 
@@ -19,18 +19,18 @@ class TestDataGeneratorThread(QThread):
 
     def __init__(self):
         super(TestDataGeneratorThread, self).__init__()
-        self.ex_data = [("猫猫","a")]
+        self.ex_data = [("猫猫", "a")]
 
-        name_list = ["狗子","鲸鱼","大兔子","垂耳兔","黑兔","朱迪","尼克","闪电","棉花糖","泡泡","水母",
-                     "章鱼哥","派大星","夏奇拉","狼先生","狼太太","小灰灰","绵羊","山羊","羚羊","瞪羚",
-                     "豹子","仓仓","鼠鼠","大白鼠","米老鼠","妙妙米奇","快乐星球","小兔子","兔子尾巴","佐乌",
-                     "咕咕咕鸽咕咕","云雀","青鸟","仙鹤","长颈鹿"]
+        name_list = ["狗子", "鲸鱼", "大兔子", "垂耳兔", "黑兔", "朱迪", "尼克", "闪电", "棉花糖", "泡泡", "水母",
+                     "章鱼哥", "派大星", "夏奇拉", "狼先生", "狼太太", "小灰灰", "绵羊", "山羊", "羚羊", "瞪羚",
+                     "豹子", "仓仓", "鼠鼠", "大白鼠", "米老鼠", "妙妙米奇", "快乐星球", "小兔子", "兔子尾巴", "佐乌",
+                     "咕咕咕鸽咕咕", "云雀", "青鸟", "仙鹤", "长颈鹿"]
 
         hira = np.array(initdata.hiragana[:1]).flatten()
         rou = np.array(initdata.roumaji[:1]).flatten()
         kana = np.array(initdata.katakana[:1]).flatten()
-        kana_range = np.append(hira,rou)
-        kana_range = np.append(kana_range,kana)
+        kana_range = np.append(hira, rou)
+        kana_range = np.append(kana_range, kana)
         kana_range = kana_range.flatten()
 
         length_of_string = 3
@@ -42,7 +42,7 @@ class TestDataGeneratorThread(QThread):
             messagelist.append(message2)
             message = np.random.choice(messagelist)
             name = np.random.choice(name_list)
-            self.ex_data.append((name,message))
+            self.ex_data.append((name, message))
 
     def run(self):
         for i in self.ex_data:
@@ -53,6 +53,7 @@ class TestDataGeneratorThread(QThread):
     def properly_stop(self):
         print("结束进程")
         self.exit()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
