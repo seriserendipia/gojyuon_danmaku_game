@@ -1,27 +1,20 @@
 import sys
 
-from PyQt5.QtCore import QUrl, QSize, Qt
-from PyQt5.QtGui import QIcon, QPixmap, QTransform
+from PyQt5.QtCore import QUrl
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtMultimedia import QMediaContent, QMediaPlaylist
 from PyQt5.QtMultimedia import QMediaPlayer
-from PyQt5.QtWidgets import QApplication, QGridLayout, \
-    QListWidget, QListWidgetItem, QSizePolicy
+from PyQt5.QtWidgets import QApplication
 
-from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question, QA_answer
-from gojyuon_danmaku_game.basegui import BaseGUI
+from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question
 from gojyuon_danmaku_game.danmaku import DANMAKU
-from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji
-from gojyuon_danmaku_game.team import TeamInfo
+from gojyuon_danmaku_game.game_basegui import BaseGUI
+from gojyuon_danmaku_game.initdata import hiragana
 
-
-class QTeamListWidget(QListWidget):
-    def __init__(self,team_flag):
-        super(QTeamListWidget, self).__init__()
-        self.team_flag = team_flag
 
 class ListeningGame(BaseGUI):
 
-    def __init__(self,kana_range):
+    def __init__(self, kana_range):
         self.player = QMediaPlayer()
         self.playlist = QMediaPlaylist()
         self.player.setPlaylist(self.playlist)
@@ -70,12 +63,12 @@ class ListeningGame(BaseGUI):
 
     def init_play_content(self):
         audio_dir = self.audio_dir
-        print("音频路径：",audio_dir)
+        print("音频路径：", audio_dir)
         self.playlist.clear()
 
         self.media_content = QMediaContent(QUrl.fromLocalFile(audio_dir))
         self.playlist.addMedia(self.media_content)
-        #TODO 减低频率，添加空白音频
+        # TODO 减低频率，添加空白音频
         blank_media_content = QMediaContent(QUrl.fromLocalFile(r"..\res\音声素材\empty_voice.m4a"))
         self.playlist.addMedia(blank_media_content)
         self.playlist.setPlaybackMode(QMediaPlaylist.Loop)
@@ -85,6 +78,7 @@ class ListeningGame(BaseGUI):
 
     def pause_music(self):
         self.player.pause()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

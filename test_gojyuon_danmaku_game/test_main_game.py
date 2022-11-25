@@ -4,7 +4,7 @@ from unittest import TestCase
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 
-from gojyuon_danmaku_game import listening_game
+from gojyuon_danmaku_game import game_listening
 
 
 class TestMainWindow(TestCase,QThread):

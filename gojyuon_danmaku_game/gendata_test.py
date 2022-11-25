@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QApplication
 
 
 from gojyuon_danmaku_game import initdata
-from gojyuon_danmaku_game.listening_game import ListeningGame
+from gojyuon_danmaku_game.game_listening import ListeningGame
 from initdata import hiragana
 
 

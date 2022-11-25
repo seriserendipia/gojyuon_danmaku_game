@@ -13,13 +13,8 @@ from gojyuon_danmaku_game.QA_control import ListeningQAJudger, QA_question, QA_a
 from gojyuon_danmaku_game.danmaku import DANMAKU
 from gojyuon_danmaku_game.initdata import shuffle, hiragana, get_roumaji, blank_label_fill_str, get_hiragana, katakana
 from gojyuon_danmaku_game.team import TeamInfo
-from gojyuon_danmaku_game.test_ex_data import TestDataGeneratorThread
+from gojyuon_danmaku_game.gendata_test import TestDataGeneratorThread
 
-
-class QTeamListWidget(QListWidget):
-    def __init__(self,team_flag):
-        super(QTeamListWidget, self).__init__()
-        self.team_flag = team_flag
 
 class SignatureGameWindow(QWidget):
     input_thread_properly_stop_signal = QtCore.pyqtSignal()
