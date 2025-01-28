@@ -83,7 +83,7 @@ class ListeningGame(GameBaseGUI):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = ListeningGame(hiragana[3:4])
+    w = ListeningGame(hiragana[:-2])
 
     # 实例化弹幕获取线程
     input_thread = DANMAKU()

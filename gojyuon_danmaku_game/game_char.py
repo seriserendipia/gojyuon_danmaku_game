@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QApplication
 from gojyuon_danmaku_game.QA_control import QA_question, CharQAJudger
 from gojyuon_danmaku_game.danmaku import DANMAKU
 from gojyuon_danmaku_game.game_basegui import GameBaseGUI
-from gojyuon_danmaku_game.initdata import katakana
+from gojyuon_danmaku_game.initdata import katakana, hiragana
 
 
 class CharGame(GameBaseGUI):
@@ -26,7 +26,7 @@ class CharGame(GameBaseGUI):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
 
-    w = CharGame(katakana[:3])
+    w = CharGame(hiragana[:-2])
 
     # 实例化弹幕获取线程
     input_thread = DANMAKU()

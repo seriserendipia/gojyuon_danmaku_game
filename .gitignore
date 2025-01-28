@@ -1,0 +1,29 @@
+# Python
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.whl
+
+# blivedm
+blivedm_dev/
+
+# PyQt5
+*.ui
+*.pyc
+
+# Additional ignores
+venv/
+env/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+*.log
+*~
+*.tmp
+*.so
+
+customize_config.py
