@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
-from .client import *
-from .handlers import *
-from .models import *
+from .bdm_client import *
+from .bdm_handlers import *
+from .bdm_models import *

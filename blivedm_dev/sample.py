@@ -5,9 +5,7 @@ import random
 import blivedm
 
 # 直播间ID的取值看直播间URL
-TEST_ROOM_IDS = [
-    7777
-]
+from customize_config import BLIVE_ROOM_IDS
 
 
 async def main():
@@ -19,7 +17,7 @@ async def run_single_client():
     """
     演示监听一个直播间
     """
-    room_id = random.choice(TEST_ROOM_IDS)
+    room_id = random.choice(BLIVE_ROOM_IDS)
     # 如果SSL验证失败就把ssl设为False，B站真的有过忘续证书的情况
     client = blivedm.BLiveClient(room_id, ssl=True)
     handler = MyHandler()
@@ -40,7 +38,7 @@ async def run_multi_client():
     """
     演示同时监听多个直播间
     """
-    clients = [blivedm.BLiveClient(room_id) for room_id in TEST_ROOM_IDS]
+    clients = [blivedm.BLiveClient(room_id) for room_id in BLIVE_ROOM_IDS]
     handler = MyHandler()
     for client in clients:
         client.add_handler(handler)
